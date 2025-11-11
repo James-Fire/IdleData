@@ -200,7 +200,7 @@ function Contracts.createContract(contractType, capacity)
         local contract = {
             id = math.random(10000, 99999),
             type = "store",
-            name = "Store Data #" .. math.random(1000, 9999),
+            name = "Store Data",
             packetCount = spec.StorePackets,
             packetSize = spec.PacketSize,
             storageDuration = spec.StoreDuration,
@@ -226,11 +226,11 @@ end
 
 -- Calculate actual transfer speed based on contract, modem, server limits, and bandwidth sharing
 function Contracts.calculateTransferSpeed(contractSpeedMbps, nodes, activeContracts, currentContract)
-    -- Find fastest modem speed
+    -- Find total modem speed
     local modemSpeedMbps = 0
     for _, node in ipairs(nodes) do
         if node.category == "modem" and node.powered then
-            modemSpeedMbps = math.max(modemSpeedMbps, node.dataSpeed)
+            modemSpeedMbps = modemSpeedMbps + node.dataSpeed
         end
     end
     
@@ -283,19 +283,10 @@ function Contracts.calculateTransferSpeed(contractSpeedMbps, nodes, activeContra
     end
     
     -- Use the slowest of: contract speed, modem, server, switches, routers
-    local effectiveSpeedMbps = contractSpeedMbps
-    if modemSpeedMbps > 0 then
-        effectiveSpeedMbps = math.min(effectiveSpeedMbps, modemSpeedMbps)
+    if not hasSwitches then
+		minSwitchSpeed = math.huge
     end
-    if serverDownloadMbps > 0 then
-        effectiveSpeedMbps = math.min(effectiveSpeedMbps, serverDownloadMbps)
-    end
-    if hasSwitches and minSwitchSpeed < math.huge then
-        effectiveSpeedMbps = math.min(effectiveSpeedMbps, minSwitchSpeed)
-    end
-    if hasRouters and minRouterSpeed < math.huge then
-        effectiveSpeedMbps = math.min(effectiveSpeedMbps, minRouterSpeed)
-    end
+    local effectiveSpeedMbps = math.min(contractSpeedMbps,modemSpeedMbps,serverDownloadMbps,minRouterSpeed,minSwitchSpeed)
     
     -- Convert to progress % per second
     -- Assume 100% = total data transfer at contract's advertised speed
@@ -364,8 +355,10 @@ function Contracts.autoAccept(availableContracts, activeContracts, nodes)
         local needsCpuCores = 0
         local needsGpuCores = 0
         local needsStorage = 0
+        local needsBandwidth = 0
         
 		if contract then
+			needsBandwidth = contract.downloadSpeed
 			if contract.type == "compute" then
 				needsCpuCores = contract.cpuPackets or 0
 				needsGpuCores = contract.gpuPackets or 0
@@ -375,7 +368,7 @@ function Contracts.autoAccept(availableContracts, activeContracts, nodes)
 			end
 	   
 			if 
-			   (activeCpuCores + needsCpuCores <= capacity.totalCpuCores * 0.95) and 
+			   (activeCpuCores + needsCpuCores <= capacity.totalCpuCores * 0.95) and
 			   (activeGpuCores + needsGpuCores <= capacity.totalGpuCores * 0.95) and
 			   (activeStorage + needsStorage <= capacity.totalStorage * 0.95) then
 				

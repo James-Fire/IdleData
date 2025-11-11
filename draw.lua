@@ -11,7 +11,7 @@ function love.draw()
     
     -- Draw grid
     if showGrid then
-        drawGrid()
+        Draw.Grid()
     end
     
     -- Draw connections
@@ -47,7 +47,7 @@ function love.draw()
     -- Draw nodes (skip nodes that are in racks, they'll be drawn separately)
     for _, node in ipairs(nodes) do
         if not node.parentRack then
-            drawNode(node)
+            Draw.Node(node)
         end
     end
     
@@ -75,7 +75,7 @@ function love.draw()
                 item.x = rowStartX + col * (item.width + spacingX)
                 item.y = selectedNode.y + startOffsetY + row * spacingY
                 
-                drawNode(item)
+                Draw.Node(item)
                 
                 -- Draw line connecting to rack
                 love.graphics.setColor(0.5, 0.5, 0.5, 0.3)
@@ -121,7 +121,7 @@ function love.draw()
             end
         end
         
-        drawGhostNode(variantId, mouse.worldX, mouse.worldY)
+        Draw.GhostNode(variantId, mouse.worldX, mouse.worldY)
     end
     
     -- Draw box selection
@@ -143,7 +143,7 @@ function love.draw()
         for _, nodeCopy in ipairs(clipboard.nodes) do
             local ghostX = mouse.worldX + nodeCopy.relX
             local ghostY = mouse.worldY + nodeCopy.relY
-            drawGhostNode(nodeCopy.variantId, ghostX, ghostY)
+            Draw.GhostNode(nodeCopy.variantId, ghostX, ghostY)
         end
     end
     
@@ -151,16 +151,16 @@ function love.draw()
     love.graphics.pop()
     
     -- Draw UI
-    drawUI()
+    Draw.UI()
     
     -- Draw contracts screen if open
     if showContractsScreen then
-        drawContractsScreen()
+        Draw.ContractsScreen()
     end
     
     -- Draw save/load menu if open
     if showSaveLoadMenu then
-        drawSaveLoadMenu()
+        Draw.SaveLoadMenu()
     end
 end
 

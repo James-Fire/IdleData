@@ -113,7 +113,7 @@ function love.load()
     saveFilename = ""
     
     -- Contract refresh timer
-    contractRefreshTimer = 780 -- Start at 13 minutes (so first refresh is at 2 min)
+    contractRefreshTimer = 840 -- Start at 14 minutes (so first refresh is at 2 min)
     contractRefreshInterval = 900 -- 15 minutes in seconds
     
     -- Auto-accept contracts
@@ -124,7 +124,7 @@ function love.load()
     
     -- Time speed control
     timeSpeed = 1  -- 1x speed, 0 = paused
-    timeSpeedOptions = {1, 2, 5, 10, 100, -1}  -- -1 means unlimited
+    timeSpeedOptions = {1, 2, 5, 10, 100, 1000}
     timeSpeedIndex = 1
     isPaused = false
     speedBeforePause = 1  -- Remember speed when pausing
@@ -993,35 +993,6 @@ function love.mousereleased(x, y, button)
         end
         
         draggingNode = false
-        
-        -- Check for contract accept button clicks
-        if showContractsScreen then
-            for i, contract in ipairs(contracts.available) do
-                if contract.acceptButtonBounds then
-                    local b = contract.acceptButtonBounds
-                    if x >= b.x and x <= b.x + b.w and y >= b.y and y <= b.y + b.h then
-                        -- Accept contract
-                        contract.state = "downloading"
-                        contract.progress = 0
-                        table.insert(contracts.active, contract)
-                        table.remove(contracts.available, i)
-                        return
-                    end
-                end
-            end
-        end
-        
-        -- Check for contract accept button clicks in active contracts too
-        for i, contract in ipairs(contracts.active) do
-            -- Look for state-based accept button (maybe we have a different button)
-            if contract.acceptButtonBounds then
-                local b = contract.acceptButtonBounds
-                if x >= b.x and x <= b.x + b.w and y >= b.y and y <= b.y + b.h then
-                    -- Maybe cancel contract?
-                    return
-                end
-            end
-        end
     end
     
     -- Update box selection end point
@@ -1353,9 +1324,9 @@ function getNextConnectionNode(from, to, connType)
     if connType == "power" then
         -- For power cables, continue from the PSU if it's not at capacity
         local psu = nil
-        if from.category == "psu" then
+        if from.category == "power" then
             psu = from
-        elseif to.category == "psu" then
+        elseif to.category == "power" then
             psu = to
         end
         

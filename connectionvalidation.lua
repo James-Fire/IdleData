@@ -1,5 +1,6 @@
 -- Connection Validation
 -- Handles all rules for valid connections between hardware nodes
+local Hardware = require("hardware")
 
 local ConnectionValidation = {}
 
@@ -38,7 +39,6 @@ function ConnectionValidation.serverHasFiber(server)
         return false
     end
     
-    local Hardware = require("hardware")
     local bonuses = Hardware.calculateServerBonuses(server)
     return bonuses.hasFiber
 end
@@ -46,7 +46,6 @@ end
 -- Validate connection between two nodes
 function ConnectionValidation.validate(from, to, cableType, connections)
     local Cables = require("cables")
-    local Hardware = require("hardware")
     
     local cable = Cables.getVariant(cableType)
     if not cable then

@@ -297,12 +297,12 @@ end
 
 -- Auto-accept contracts that fit capacity
 -- Break a contract into packets and add them to the work queue
-function Contracts.addToWorkQueue(queue, contract, nodes)
+function Contracts.addToWorkQueue(queue, contract, nodes, ContractTable)
     -- Accept the contract
 	contract.state = "downloading"
 	contract.progress = 0
 	table.insert(contracts.active, contract)
-	table.remove(contracts.available, i)
+	table.remove(contracts.available, ContractTable)
     if contract.type == "compute" then
         local spec = Contracts.types.compute
         

@@ -22,8 +22,6 @@ Contract "Idle" replaced with actual reasons.
 
 Add time remaining to contract tooltips
 
-Save screen can save over existing save
-
 Text size also scales with zoom
 
 Selecting a rack while it's selected and it's components are blown out will unselect it

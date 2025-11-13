@@ -691,7 +691,7 @@ function Draw.SaveLoadMenu()
     end
     love.graphics.rectangle("fill", panelX + 20, tabY, tabW, tabH, 3)
     love.graphics.setColor(1, 1, 1)
-    love.graphics.print("Load", panelX + 45, tabY + 8)
+    love.graphics.print("Save Games", panelX + 45, tabY + 8)
     
     -- Save tab
     if saveLoadMenuTab == "save" then
@@ -744,7 +744,22 @@ function Draw.SaveLoadMenu()
                 love.graphics.print(string.format("%s | %s", sizeText, dateText), panelX + 30, itemY + 25, 0, 0.7, 0.7)
                 
                 -- Load button
-                local btnX = panelX + panelW - 110
+                local loadbtnX = panelX + panelW - 110
+                local loadbtnY = itemY + 10
+                local loadbtnW = 70
+                local loadbtnH = 30
+                
+                love.graphics.setColor(0.3, 0.9, 0.3)
+                love.graphics.rectangle("fill", loadbtnX, loadbtnY, loadbtnW, loadbtnH, 3)
+                
+                love.graphics.setColor(1, 1, 1)
+                love.graphics.print("Load", loadbtnX + 18, loadbtnY + 8)
+                
+                -- Store button bounds for click detection
+                save.loadButtonBounds = {loadbtnX, loadbtnY, loadbtnW, loadbtnH}
+                
+                -- Save button to overwrite
+                local btnX = panelX + panelW - 190
                 local btnY = itemY + 10
                 local btnW = 70
                 local btnH = 30
@@ -753,10 +768,10 @@ function Draw.SaveLoadMenu()
                 love.graphics.rectangle("fill", btnX, btnY, btnW, btnH, 3)
                 
                 love.graphics.setColor(1, 1, 1)
-                love.graphics.print("Load", btnX + 18, btnY + 8)
+                love.graphics.print("Save", btnX + 18, btnY + 8)
                 
                 -- Store button bounds for click detection
-                save.loadButtonBounds = {x = btnX, y = btnY, w = btnW, h = btnH}
+                save.saveButtonBounds = {btnX, btnY, btnW, btnH}
             end
         end
         

@@ -681,14 +681,23 @@ function love.mousepressed(x, y, button)
 				local itemY = listY + (i - 1) * 60 - saveLoadScrollOffset
 				
 				-- Calculate button bounds
-				local btnX = panelX + panelW - 110
+				local loadbtnX = panelX + panelW - 110
+				local savebtnX = panelX + panelW - 190
 				local btnY = itemY + 10
 				local btnW = 70
 				local btnH = 30
 				
-				if x >= btnX and x <= btnX + btnW and y >= btnY and y <= btnY + btnH then
+				if x >= loadbtnX and x <= loadbtnX + btnW and y >= btnY and y <= btnY + btnH then
 					print("Loading " .. save.name)
 					loadGame(save.name)
+					showSaveLoadMenu = false
+					return
+				elseif x >= savebtnX and x <= savebtnX + btnW and y >= btnY and y <= btnY + btnH then
+					local filename = save.name
+					if not filename:match("%.sav$") then
+						filename = filename .. ".sav"
+					end
+					saveGame(filename)
 					showSaveLoadMenu = false
 					return
 				end

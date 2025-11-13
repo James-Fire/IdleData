@@ -6,6 +6,8 @@ Copy/Paste doesn't work
 
 Compute contracts finish really slow (because they don't download enough?)
 
+Compute contracts fully occupy all downloading
+
 
 
 BALANCE:

@@ -1383,8 +1383,10 @@ function updatePowerConsumption()
 		-- Also reset powered status for rack contents
 		if node.category == "rack" then
 			node.powered = false
+			node.powerDraw = 0
 			for _, item in ipairs(node.contents) do
 				if item.powerDraw then
+					node.powerDraw = node.powerDraw + item.powerDraw
 					item.powered = false
 				end
 			end
@@ -1412,7 +1414,7 @@ function updatePowerConsumption()
 		end
 	end
 
-	-- Distribute power from PSUs (directly or through distributors) to devices.
+	-- Distribute power from PSUs through distributors to devices.
 	-- If multiple PSUs feed the same distributor, split demand proportionally by capacity.
 	for _, conn in ipairs(connections) do
 		if conn.type == "power" and not conn.isRackInternal then
@@ -1436,51 +1438,24 @@ function updatePowerConsumption()
 				device = nil
 			end
 
-			if not device then goto continue_power end
-
-			local function assign_to_psus(psus, demand)
-				if not psus or #psus == 0 then return end
-				local totalCap = 0
-				for _, p in ipairs(psus) do totalCap = totalCap + (p.powerCapacity or 0) end
-				if totalCap <= 0 then
-					psus[1].powerUsed = (psus[1].powerUsed or 0) + demand
-					return
-				end
-				for _, p in ipairs(psus) do
-					local share = ((p.powerCapacity or 0) / totalCap) * demand
-					p.powerUsed = (p.powerUsed or 0) + share
-				end
-			end
-
-			if device.category == "rack" then
-				-- sum content draws
-				local rackPowerDraw = 0
-				if device.contents then
-					for _, item in ipairs(device.contents) do
-						if item.powerDraw then
-							rackPowerDraw = rackPowerDraw + item.powerDraw
-							item.powered = true
-						end
+			if device and device.powerDraw then
+				local function assign_to_psus(psus, demand)
+					if not psus or #psus == 0 then return end
+					local totalCap = 0
+					for _, p in ipairs(psus) do totalCap = totalCap + (p.powerCapacity or 0) end
+					if totalCap <= 0 then
+						psus[1].powerUsed = (psus[1].powerUsed or 0) + demand
+						return
+					end
+					for _, p in ipairs(psus) do
+						local share = ((p.powerCapacity or 0) / totalCap) * demand
+						p.powerUsed = (p.powerUsed or 0) + share
 					end
 				end
-				if directPsu then
-					directPsu.powerUsed = (directPsu.powerUsed or 0) + rackPowerDraw
-				else
-					assign_to_psus(psuList, rackPowerDraw)
-				end
+				assign_to_psus(psuList, device.powerDraw)
 				device.powered = true
-
-			elseif device.powerDraw then
-				if directPsu then
-					directPsu.powerUsed = (directPsu.powerUsed or 0) + device.powerDraw
-					device.powered = true
-				else
-					assign_to_psus(psuList, device.powerDraw)
-					device.powered = true
-				end
 			end
 		end
-		::continue_power::
 	end
 end
 

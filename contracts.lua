@@ -9,11 +9,10 @@ Contracts.types = {
         name = "Compute Data",
         -- CPU Scaling parameters
         cpuPackets = {5, 20},  -- Scale packets with total cores
-        
         CpuTimePerPacket = {10, 60},  -- seconds per packet
         
-        gpuPackets= {5000, 15000},  -- GPU packets = CPU packets * this
-		gpuTimePerPacket = {0.5, 3},
+        gpuPackets= {5000, 15000},  -- GPU packets
+		gpuTimePerPacket = {0.25, 1},
         
         minInputSize = 5,   -- GB
         maxInputSize = 50,  -- GB
@@ -148,10 +147,6 @@ function Contracts.createContract(contractType, capacity)
 		else
 			computeType = "both"
 		end
-		local cpuPackets = math.random(spec.cpuPackets[1],spec.cpuPackets[2])
-		local cpuTimePerPacket = math.random(spec.CpuTimePerPacket[1],spec.CpuTimePerPacket[2])
-		local gpuPackets = math.random(spec.gpuPackets[1],spec.gpuPackets[2])
-		local gpuTimePerPacket = math.random(spec.gpuTimePerPacket[1],spec.gpuTimePerPacket[2])
         
         local contract = {
             id = math.random(10000, 99999),
@@ -160,21 +155,23 @@ function Contracts.createContract(contractType, capacity)
             name = "Compute Data",
             
             -- Separate CPU and GPU work
-            cpuPackets = cpuPackets,
-            cpuTimePerPacket = cpuTimePerPacket,
+            cpuPackets = math.random(spec.cpuPackets[1],spec.cpuPackets[2]),
+            cpuTimePerPacket = math.random(spec.CpuTimePerPacket[1],spec.CpuTimePerPacket[2]),
             cpuPacketsCompleted = 0,
             
-            gpuPackets = gpuPackets,
+            gpuPackets = math.random(spec.gpuPackets[1],spec.gpuPackets[2]),
+            gpuTimePerPacket = math.random(spec.gpuTimePerPacket[1],spec.gpuTimePerPacket[2]),
             gpuPacketsCompleted = 0,
-            gpuTimePerPacket = gpuTimePerPacket,
             
             -- Context switching state
             currentPacketProgress = 0,  -- Progress on current packet (0-1)
             contextSwitchTimer = 0,     -- Time spent in context switch
             isContextSwitching = false,
             
-            packetSizeInput = math.random(spec.minInputSize, spec.maxInputSize),
-            packetSizeOutput = math.random(spec.minOutputSize, spec.maxOutputSize),
+            cpupacketSizeInput = math.random(spec.minInputSize, spec.maxInputSize),
+            gpupacketSizeInput = math.random(spec.minInputSize, spec.maxInputSize)/100,
+            cpupacketSizeOutput = math.random(spec.minOutputSize, spec.maxOutputSize),
+            gpupacketSizeOutput = math.random(spec.minOutputSize, spec.maxOutputSize)/100,
             downloadSpeed = math.random(spec.DownloadSpeed[1],spec.DownloadSpeed[2]),
             uploadSpeed = math.random(spec.UploadSpeed[1],spec.UploadSpeed[2]),
             payment = 0,
@@ -312,8 +309,8 @@ function Contracts.addToWorkQueue(queue, contract, nodes, ContractTable)
         -- Add GPU packets (if any)
         for i = 1, contract.gpuPackets do
             WorkQueue.addPacket(queue, contract.id, "gpu", contract.gpuTimePerPacket,
-                              contract.packetSizeInput / contract.gpuPackets,
-                              contract.packetSizeOutput / contract.gpuPackets)
+                              contract.gpupacketSizeInput / contract.gpuPackets,
+                              contract.gpupacketSizeOutput / contract.gpuPackets)
         end
         
     elseif contract.type == "store" then

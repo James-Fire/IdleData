@@ -14,6 +14,10 @@ Draw = require("draw")
 local PowerConsumption = 0
 local InternetCosts = 0
 
+function love.conf(t)
+    t.console = true
+end
+
 function love.load()
 	-- Camera system
 	camera = {
@@ -211,7 +215,6 @@ function updateGameLogic(dt)
 		for _, contract in ipairs(generated) do
 			table.insert(contracts.available, contract)
 		end
-		
 		-- Auto-accept contracts if enabled
 		if autoAcceptContracts then
 			Contracts.autoAccept(contracts.available, contracts.active, nodes)

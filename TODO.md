@@ -4,6 +4,8 @@ Contracts basically cancel themselves when you save/load and stop doing anything
 
 Copy/Paste doesn't work
 
+Compute contracts finish really slow (because they don't download enough?)
+
 
 
 BALANCE:

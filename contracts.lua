@@ -8,14 +8,12 @@ Contracts.types = {
     compute = {
         name = "Compute Data",
         -- CPU Scaling parameters
-        cpuPackets = math.random(5, 20),  -- Scale packets with total cores
+        cpuPackets = {5, 20},  -- Scale packets with total cores
         
-        minCpuComputeTime = 10,  -- seconds per packet
-        maxCpuComputeTime = 60,  -- seconds per packet
+        CpuTimePerPacket = {10, 60},  -- seconds per packet
         
-        -- GPU Scaling parameters (1000x more packets, much shorter time)
-        gpuPacketMultiplier = math.random(500, 1500),  -- GPU packets = CPU packets * this
-		gpuTimePerPacket = math.random(0.5, 3),
+        gpuPackets= {5000, 15000},  -- GPU packets = CPU packets * this
+		gpuTimePerPacket = {0.5, 3},
         
         minInputSize = 5,   -- GB
         maxInputSize = 50,  -- GB
@@ -32,26 +30,24 @@ Contracts.types = {
         paymentTimeMultiplier = 0.5,
         
         -- Data transfer speeds
-        minDownloadSpeed = 50,   -- Mbps
-        maxDownloadSpeed = 500,  -- Mbps
-        minUploadSpeed = 25,     -- Mbps
-        maxUploadSpeed = 250     -- Mbps
+        DownloadSpeed = {50, 500},   -- Mbps
+        UploadSpeed = {25, 250}     -- Mbps
     },
     
     store = {
         name = "Store Data",
         -- Scaling parameters
-        StorePackets = math.random(5, 10),
-        PacketSize = math.random(100, 1000),  -- GB
+        StorePackets = {5, 10},
+        PacketSize = {100, 1000},  -- GB
         
-        StoreDuration = math.random(1200, 6000),   -- seconds
+        StoreDuration = {1200, 6000},   -- seconds
         
         -- Payment calculation
         paymentStorageMultiplier = 0.3,
         paymentTimeMultiplier = 0.5,
         
         -- Data transfer speeds
-        DownloadSpeed = math.random(5, 10000),   -- Mbps
+        DownloadSpeed = {5, 10000},   -- Mbps
     }
 }
 
@@ -152,10 +148,10 @@ function Contracts.createContract(contractType, capacity)
 		else
 			computeType = "both"
 		end
-		local cpuPackets = spec.cpuPackets
-		local cpuTimePerPacket = math.random(spec.minCpuComputeTime, spec.maxCpuComputeTime)
-		local gpuPackets = cpuPackets*spec.gpuPacketMultiplier
-		local gpuTimePerPacket = spec.gpuTimePerPacket
+		local cpuPackets = math.random(spec.cpuPackets[1],spec.cpuPackets[2])
+		local cpuTimePerPacket = math.random(spec.CpuTimePerPacket[1],spec.CpuTimePerPacket[2])
+		local gpuPackets = math.random(spec.gpuPackets[1],spec.gpuPackets[2])
+		local gpuTimePerPacket = math.random(spec.gpuTimePerPacket[1],spec.gpuTimePerPacket[2])
         
         local contract = {
             id = math.random(10000, 99999),
@@ -179,8 +175,8 @@ function Contracts.createContract(contractType, capacity)
             
             packetSizeInput = math.random(spec.minInputSize, spec.maxInputSize),
             packetSizeOutput = math.random(spec.minOutputSize, spec.maxOutputSize),
-            downloadSpeed = math.random(spec.minDownloadSpeed, spec.maxDownloadSpeed),
-            uploadSpeed = math.random(spec.minUploadSpeed, spec.maxUploadSpeed),
+            downloadSpeed = math.random(spec.DownloadSpeed[1],spec.DownloadSpeed[2]),
+            uploadSpeed = math.random(spec.UploadSpeed[1],spec.UploadSpeed[2]),
             payment = 0,
             progress = 0,
             state = "available"
@@ -201,10 +197,10 @@ function Contracts.createContract(contractType, capacity)
             id = math.random(10000, 99999),
             type = "store",
             name = "Store Data",
-            packetCount = spec.StorePackets,
-            packetSize = spec.PacketSize,
-            storageDuration = spec.StoreDuration,
-            downloadSpeed = spec.DownloadSpeed,
+            packetCount = math.random(spec.StorePackets[1],spec.StorePackets[2]),
+            packetSize = math.random(spec.PacketSize[1],spec.PacketSize[2]),
+            storageDuration = math.random(spec.StoreDuration[1],spec.StoreDuration[2]),
+            downloadSpeed = math.random(spec.DownloadSpeed[1],spec.DownloadSpeed[2]),
             totalPayment = 0,
             paymentPerSecond = 0,
             progress = 0,
